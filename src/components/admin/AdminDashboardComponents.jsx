@@ -33,7 +33,7 @@ export function DashboardLayout({ children }) {
             {/* Sidebar Navigation */}
             <aside className="w-64 bg-slate-800 text-cream fixed h-full flex flex-col z-20 shadow-xl overflow-y-auto">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold tracking-tight mb-2">TrustAdmin</h2>
+                    <h2 className="text-2xl font-bold tracking-tight mb-2">Barthimaeu Admin</h2>
                     <p className="text-slate-400 text-sm">Content Management System</p>
                 </div>
 
