@@ -30,28 +30,45 @@ export default function Home() {
     return (
         <div className="w-full">
             {/* Hero Section */}
-            <section className="relative w-full pt-32 pb-40 px-4 overflow-hidden bg-cream">
-                {/* Subtle patterned background element here if needed, keeping clean for now */}
-                <Container className="relative z-10">
+            <section
+                className="relative w-full min-h-[60vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center justify-center px-4 overflow-hidden"
+                style={{
+                    backgroundImage: "url('/assets/hero-image.jpeg')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                }}
+            >
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+
+                <Container className="relative z-10 py-12 sm:py-20 md:py-32">
                     <motion.div
-                        initial="hidden" animate="visible" variants={staggerContainer}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                         className="text-center max-w-4xl mx-auto"
                     >
-                        <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-slate-800 tracking-tight mb-6">
-                            Empowering <span className="text-primary">Communities</span> <br />
+                        <span className="inline-block px-4 py-1.5 sm:px-5 sm:py-2 bg-white/15 backdrop-blur-sm text-white text-xs sm:text-sm font-bold uppercase tracking-widest rounded-full mb-6 sm:mb-8 border border-white/20">
+                            Barthimaeu Charitable Trust
+                        </span>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-4 sm:mb-6 leading-tight drop-shadow-lg">
+                            Empowering{" "}
+                            <span className="text-secondary">Communities</span>
+                            <br />
                             for a Better Tomorrow
-                        </motion.h1>
-                        <motion.p variants={fadeIn} className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                            Together we uplift communities and create opportunities for those in need. Join our mission to bring lasting change.
-                        </motion.p>
-                        <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
+                        </h1>
+                        <p className="text-base sm:text-lg md:text-xl text-white/85 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-sm px-2">
+                            Together we uplift communities and create opportunities for those in need. Join our mission to bring lasting change through compassion, education, and social support.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
+                            <SkeuButton variant="primary" className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-3.5 sm:py-4" onClick={() => navigate('/donate')}>
                                 Donate Now
                             </SkeuButton>
-                            <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
+                            <SkeuButton variant="secondary" className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-3.5 sm:py-4" onClick={() => navigate('/volunteer')}>
                                 Become a Volunteer
                             </SkeuButton>
-                        </motion.div>
+                        </div>
                     </motion.div>
                 </Container>
             </section>
@@ -65,19 +82,16 @@ export default function Home() {
                     >
                         <div>
                             <SectionTitle title="Our Mission" className="text-left" />
-                            <SkeuCard hover={false} className="mt-8 text-lg text-slate-600 leading-relaxed shadow-skeu">
-                                Our mission is to support education, healthcare, and community development for underprivileged families.
-                                We believe that every individual deserves a fair chance at life, surrounded by support, basic necessities,
-                                and opportunities to grow. <br /><br />
-                                Since our founding, we have worked relentlessly on the ground to provide sustainable solutions rather
-                                than just temporary relief.
+                            <SkeuCard hover={false} className="mt-6 sm:mt-8 text-base sm:text-lg text-slate-600 leading-relaxed shadow-skeu">
+                                Our mission is to share the love of God through serving people in need, especially the blind and those who feel forgotten in society. We believe every person is precious in God’s sight. Through our blind ministry and social outreach activities, we aim to bring hope, encouragement, and practical help to those who need it. <br /><br />
+                                We visit and support visually challenged people, spend time with them, pray with them, and remind them that they are deeply loved by God. Our social activities also focus on caring for communities, helping the needy, and spreading kindness and compassion.<br /><br />As it is written in the Bible, “The Lord opens the eyes of the blind; the Lord lifts up those who are bowed down.” –<strong> Psalm 146:8</strong>
+
                             </SkeuCard>
                         </div>
                         <div className="relative rounded-2xl overflow-hidden aspect-square shadow-skeu">
-                            {/* Unsplash Placeholder */}
                             <img
-                                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000&auto=format&fit=crop"
-                                alt="Volunteers helping"
+                                src="/assets/our-mission.jpeg"
+                                alt="Barthimaeu Charitable Trust community mission work"
                                 className="object-cover w-full h-full"
                             />
                         </div>
@@ -90,7 +104,7 @@ export default function Home() {
                 <Container>
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8"
                     >
                         <motion.div variants={fadeIn}><StatCard number="10,000+" label="Lives Helped" /></motion.div>
                         <motion.div variants={fadeIn}><StatCard number="5,000+" label="Meals Served" /></motion.div>
@@ -106,7 +120,7 @@ export default function Home() {
                     <SectionTitle title="Our Key Programs" subtitle="Discover how we are making a difference across various sectors." />
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mt-12"
+                        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 sm:gap-8 mt-8 sm:mt-12"
                     >
                         <motion.div variants={fadeIn}>
                             <ProgramCard
@@ -150,7 +164,7 @@ export default function Home() {
                     <SectionTitle title="Upcoming Events" subtitle="Join us in our upcoming community drives and campaigns." />
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12"
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12"
                     >
                         <motion.div variants={fadeIn}>
                             <EventCard
@@ -194,7 +208,7 @@ export default function Home() {
                     <SectionTitle title="Glimpses of Hope" subtitle="A visual journey of our recent activities and their impact." />
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-12"
+                        className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12"
                     >
                         {[
                             "https://images.unsplash.com/photo-1593113563332-e1e1ba1f2214?q=80&w=600&auto=format&fit=crop",
@@ -228,12 +242,12 @@ export default function Home() {
                     <SectionTitle title="Voices of Change" subtitle="Hear from the people whose lives have been transformed." />
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12"
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12"
                     >
                         {[
-                            { text: "This trust helped my children return to school after we lost everything in the flood. The uniform and books were a huge relief.", name: "Maria Garcia", location: "East District" },
-                            { text: "The free medical camp discovered my heart condition just in time. The continued support for my medication has been life-saving.", name: "James Wilson", location: "Downtown" },
-                            { text: "Thanks to the women's skill development workshop, I now run my own tailoring shop and can comfortably provide for my family.", name: "Aisha Patel", location: "West End" },
+                            { text: "This trust helped my children return to school after we lost everything in the flood. The uniform and books were a huge relief.", name: "Pradeep Sharma", location: "East District" },
+                            { text: "The free medical camp discovered my heart condition just in time. The continued support for my medication has been life-saving.", name: "Andrew", location: "Downtown" },
+                            { text: "Thanks to the women's skill development workshop, I now run my own tailoring shop and can comfortably provide for my family.", name: "Amos", location: "West End" },
                         ].map((testimonial, idx) => (
                             <motion.div variants={fadeIn} key={idx}>
                                 <SkeuCard className="h-full flex flex-col justify-between">
@@ -256,8 +270,8 @@ export default function Home() {
             <Section className="pb-32">
                 <Container>
                     <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-                        <SkeuCard className="text-center py-16 px-6 md:px-16" hover={false}>
-                            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-6">Be part of the change.</h2>
+                        <SkeuCard className="text-center py-10 sm:py-16 px-4 sm:px-6 md:px-16" hover={false}>
+                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 mb-4 sm:mb-6">Be part of the change.</h2>
                             <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10">
                                 Help us build a better future. Your contribution, whether it’s time or money, goes directly towards uplifting communities in need.
                             </p>

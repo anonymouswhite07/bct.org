@@ -56,7 +56,7 @@ export default function Contact() {
                                         </div>
                                         <div>
                                             <h4 className="text-lg font-bold text-slate-800 mb-1">Our Location</h4>
-                                            <p className="text-slate-600">123 NGO Street, Goodwill Area,<br />City, State, 12345</p>
+                                            <p className="text-slate-600">7/121, House of Worship,<br />Veddappan Kattu Valvu,<br />Deevattipatty (Po), Kadayampatty (Tk),<br />Salem (Dt) 636351, Tamil Nadu</p>
                                         </div>
                                     </div>
 
@@ -66,7 +66,7 @@ export default function Contact() {
                                         </div>
                                         <div>
                                             <h4 className="text-lg font-bold text-slate-800 mb-1">Phone Number</h4>
-                                            <p className="text-slate-600">+1 234 567 8900<br />Mon - Sat: 9:00 AM - 6:00 PM</p>
+                                            <p className="text-slate-600">+91 98765 43210<br />Mon - Sat: 9:00 AM - 6:00 PM</p>
                                         </div>
                                     </div>
 
@@ -76,7 +76,7 @@ export default function Contact() {
                                         </div>
                                         <div>
                                             <h4 className="text-lg font-bold text-slate-800 mb-1">Email Support</h4>
-                                            <p className="text-slate-600 font-medium text-primary underline underline-offset-4">contact@trustngo.org</p>
+                                            <p className="text-slate-600 font-medium text-primary underline underline-offset-4">contact@bctsouthind.org</p>
                                         </div>
                                     </div>
                                 </div>
@@ -174,8 +174,8 @@ export default function Contact() {
                             <MapPin className="text-white drop-shadow" size={32} />
                         </motion.div>
                         <div className="absolute bottom-6 left-6 z-10 p-4 bg-white/80 backdrop-blur rounded-xl shadow-lg border border-white/50 max-w-sm hidden md:block">
-                            <h4 className="font-bold text-slate-800 mb-1">TrustNGO Global Head Office</h4>
-                            <p className="text-sm text-slate-600">123 NGO Street, Goodwill Area, City, State, 12345</p>
+                            <h4 className="font-bold text-slate-800 mb-1">Barthimaeu Charitable Trust</h4>
+                            <p className="text-sm text-slate-600">7/121, House of Worship, Veddappan Kattu Valvu, Deevattipatty, Salem 636351, Tamil Nadu</p>
                         </div>
                     </div>
                 </SkeuCard>

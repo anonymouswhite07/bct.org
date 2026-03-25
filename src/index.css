@@ -17,11 +17,35 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--color-cream);
     color: var(--color-text);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Better touch targets on mobile */
+  @media (max-width: 640px) {
+    button, a {
+      min-height: 44px;
+    }
   }
 }

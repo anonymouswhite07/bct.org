@@ -111,8 +111,8 @@ export default function About() {
                                 <div className="shrink-0 relative">
                                     <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-cream shadow-skeu">
                                         <img
-                                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"
-                                            alt="Sarah Jenkins, Trust Founder"
+                                            src="/assets/team-founder.jpeg"
+                                            alt="Sam Srivasan, Trust Founder"
                                             className="object-cover w-full h-full"
                                         />
                                     </div>
@@ -122,7 +122,7 @@ export default function About() {
                                         "When we started this trust, we had merely a vision and a strong desire to see change. Today, walking alongside thousands of dedicated volunteers and generous donors, we are actively reshaping futures. I invite you to join our family, because true transformation only happens when we stand united."
                                     </p>
                                     <div>
-                                        <h4 className="text-2xl font-bold text-slate-800">Sarah Jenkins</h4>
+                                        <h4 className="text-2xl font-bold text-slate-800">Sam Srivasan</h4>
                                         <p className="text-primary font-medium text-lg">Founder & Managing Trustee</p>
                                     </div>
                                 </div>
@@ -142,34 +142,34 @@ export default function About() {
                     >
                         <motion.div variants={fadeIn}>
                             <TeamCard
-                                name="Sarah Jenkins"
+                                name="Sam Srivasan"
                                 role="Founder & Managing Trustee"
-                                description="Visionary leader directing the overall strategic path of the trust's nationwide programs."
-                                imageUrl="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"
+                                description="Visionary leader directing the overall strategic path of the trust's community programs."
+                                imageUrl="/assets/team-founder.jpeg"
                             />
                         </motion.div>
                         <motion.div variants={fadeIn}>
                             <TeamCard
-                                name="David Chen"
+                                name="Leethiyal sam"
                                 role="Program Director"
-                                description="Oversees the execution, scaling, and compliance of all our educational initiatives."
-                                imageUrl="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=600&auto=format&fit=crop"
+                                description="Oversees the execution, scaling, and compliance of all our educational and welfare initiatives."
+                                imageUrl="/assets/team-director.jpeg"
                             />
                         </motion.div>
                         <motion.div variants={fadeIn}>
                             <TeamCard
-                                name="Priya Sharma"
+                                name="Santhosh Raj"
                                 role="Community Coordinator"
                                 description="Our primary liaison working directly with local communities to map essential needs."
-                                imageUrl="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=600&auto=format&fit=crop"
+                                imageUrl="/assets/team-coordinator.jpeg"
                             />
                         </motion.div>
                         <motion.div variants={fadeIn}>
                             <TeamCard
-                                name="Michael Brooks"
+                                name="Jansirani"
                                 role="Head of Operations"
                                 description="Ensures all relief material and medical logistics operate transparently and efficiently."
-                                imageUrl="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop"
+                                imageUrl="/assets/team-operations.jpeg"
                             />
                         </motion.div>
                     </motion.div>

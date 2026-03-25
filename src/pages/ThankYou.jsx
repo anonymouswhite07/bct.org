@@ -1,75 +1,65 @@
 import { motion } from "framer-motion";
-import { Link, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Container } from "../components/layout/Container";
-import { Section } from "../components/layout/Section";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { PartyPopper, CheckCircle2, Share2, Download } from "lucide-react";
+import { Heart, Home, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function ThankYou() {
-    const [searchParams] = useSearchParams();
-    const amount = searchParams.get("amount") || "25";
-    const transactionId = searchParams.get("t_id") || "txn_7355608";
-    const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const navigate = useNavigate();
 
     const fadeIn = {
-        hidden: { opacity: 0, scale: 0.9 },
-        visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
     };
 
     return (
-        <div className="w-full bg-cream min-h-screen pt-20 pb-32">
+        <div className="w-full bg-cream min-h-screen flex items-center justify-center px-4 py-16">
             <Container className="max-w-2xl mx-auto">
                 <motion.div initial="hidden" animate="visible" variants={fadeIn}>
-                    <SkeuCard className="p-12 md:p-16 text-center shadow-xl" hover={false}>
-                        <div className="w-24 h-24 bg-rose-100 flex items-center justify-center rounded-full mx-auto mb-8 shadow-skeu-sm text-rose-500">
-                            <PartyPopper size={48} />
-                        </div>
+                    <SkeuCard className="text-center p-8 sm:p-12 md:p-16" hover={false}>
+                        {/* Success Icon */}
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                            className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner border border-emerald-200"
+                        >
+                            <Heart size={48} fill="currentColor" />
+                        </motion.div>
 
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-6">
-                            Thank You!
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">
+                            Payment Received!
                         </h1>
 
-                        <p className="text-xl text-slate-600 mb-10 leading-relaxed font-light">
-                            Your generous contribution of <span className="font-bold text-slate-800">${amount}</span> has been successfully processed. You are helping us build a more equitable world.
+                        <p className="text-lg sm:text-xl text-slate-600 mb-6 leading-relaxed max-w-md mx-auto">
+                            Thank you for your generous donation and for submitting your payment proof.
                         </p>
 
-                        <div className="bg-primary/5 rounded-2xl p-8 mb-10 border border-primary/10 text-left space-y-4">
-                            <div className="flex justify-between items-center border-b border-primary/10 pb-3">
-                                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Transaction ID</span>
-                                <span className="text-lg font-mono text-slate-800">{transactionId}</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-primary/10 pb-3">
-                                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Date</span>
-                                <span className="text-lg font-bold text-slate-800">{date}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Status</span>
-                                <div className="flex items-center gap-2 text-emerald-600 font-bold">
-                                    <CheckCircle2 size={18} />
-                                    <span>Successful</span>
-                                </div>
-                            </div>
+                        <div className="flex items-center justify-center gap-2 mb-10 p-4 bg-emerald-50 rounded-xl max-w-sm mx-auto border border-emerald-200 text-emerald-700">
+                            <ShieldCheck size={20} className="shrink-0" />
+                            <p className="text-sm font-medium">Your submission is being reviewed by our team.</p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <SkeuButton variant="primary" className="flex-1 py-4 text-lg">
-                                <Download size={20} className="mr-2" /> Download Tax Receipt
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <SkeuButton
+                                variant="primary"
+                                className="w-full sm:w-auto px-8 py-4 text-lg font-bold"
+                                onClick={() => navigate("/")}
+                            >
+                                <Home size={20} className="mr-2" />
+                                Back to Home
                             </SkeuButton>
-                            <SkeuButton variant="outline" className="flex-1 py-4 text-lg">
-                                <Share2 size={20} className="mr-2" /> Share Impact
+                            <SkeuButton
+                                variant="outline"
+                                className="w-full sm:w-auto px-8 py-4 text-lg font-bold bg-white"
+                                onClick={() => navigate("/programs")}
+                            >
+                                Our Programs
+                                <ArrowRight size={18} className="ml-2" />
                             </SkeuButton>
                         </div>
 
-                        <div className="mt-12">
-                            <Link to="/">
-                                <SkeuButton variant="outline" className="w-full">Back to Home</SkeuButton>
-                            </Link>
-                        </div>
-
-                        <div className="mt-8 pt-8 border-t border-slate-100 text-sm text-slate-500">
-                            <p>A confirmation email with your official tax receipt has been sent to your email address. Our Tax ID: 12-3456789</p>
-                        </div>
                     </SkeuCard>
                 </motion.div>
             </Container>
