@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Instagram, Mail, Phone, MapPin, Landmark } from "lucide-react";
 
 export function Footer() {
     return (
@@ -15,17 +15,8 @@ export function Footer() {
                         Empowering communities through health, education, and welfare. Dedicated to building a brighter future.
                     </p>
                     <div className="flex gap-3">
-                        <a href="#" className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-primary transition-colors text-cream" aria-label="Facebook">
-                            <Facebook size={18} />
-                        </a>
-                        <a href="#" className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-primary transition-colors text-cream" aria-label="Twitter">
-                            <Twitter size={18} />
-                        </a>
-                        <a href="#" className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-primary transition-colors text-cream" aria-label="Instagram">
-                            <Instagram size={18} />
-                        </a>
-                        <a href="#" className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-primary transition-colors text-cream" aria-label="LinkedIn">
-                            <Linkedin size={18} />
+                        <a href="https://www.instagram.com/churchof_houseofworship?igsh=MXdrNjRzYzV0MG5law%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center hover:bg-primary transition-colors text-cream shadow-lg" aria-label="Instagram">
+                            <Instagram size={24} />
                         </a>
                     </div>
                 </div>
@@ -36,7 +27,6 @@ export function Footer() {
                     <ul className="space-y-2 sm:space-y-3 text-sm text-slate-300">
                         <li><Link to="/about" className="hover:text-cream transition-colors">About Us</Link></li>
                         <li><Link to="/programs" className="hover:text-cream transition-colors">Our Programs</Link></li>
-                        <li><Link to="/events" className="hover:text-cream transition-colors">Events</Link></li>
                         <li><Link to="/gallery" className="hover:text-cream transition-colors">Gallery</Link></li>
                         <li><Link to="/contact" className="hover:text-cream transition-colors">Contact</Link></li>
                         <li><Link to="/donate" className="hover:text-cream transition-colors">Donate</Link></li>
@@ -57,7 +47,17 @@ export function Footer() {
                         </div>
                         <div className="flex items-center gap-3">
                             <Phone size={18} className="text-primary shrink-0" />
-                            <p>+91 98765 43210</p>
+                            <p>+91 94425 29635 / 94862 27632</p>
+                        </div>
+                        <div className="flex items-start gap-3 pt-2">
+                            <Landmark size={18} className="text-primary shrink-0 mt-0.5" />
+                            <p className="leading-relaxed">
+                                <strong className="text-cream underline underline-offset-4 decoration-primary mb-1 block">Official Bank Details</strong>
+                                <span className="text-slate-200">Name: BHARTHIMAEU CHARITABLE TRUST</span><br />
+                                <span className="text-slate-200">A/c: 4373101010037</span><br />
+                                <span className="text-slate-200">IFSC: CNRB0016319</span><br />
+                                <span className="text-slate-200 uppercase text-[11px] font-bold tracking-widest text-primary">CANARA BANK</span>
+                            </p>
                         </div>
                     </address>
                 </div>

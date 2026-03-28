@@ -4,17 +4,75 @@ import { Container } from "../components/layout/Container";
 import { Section } from "../components/layout/Section";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { galleryData, galleryCategories } from "../data/events";
-import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
+import { galleryCategories } from "../data/events";
+import { staticEvents } from "../data/events";
+import { staticProgramsData } from "../data/programs";
+import { X, ChevronLeft, ChevronRight, Maximize2, Trash2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Gallery() {
+    const { isAuthenticated } = useAuth();
     const [activeCategory, setActiveCategory] = useState("All");
     const [visibleCount, setVisibleCount] = useState(12);
     const [lightboxIndex, setLightboxIndex] = useState(null);
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchImages = async () => {
+        setLoading(true);
+        // Built-in static images from events/programs
+        const staticImgs = [
+            ...staticEvents.flatMap(e => (e.gallery || []).map(url => ({ url, category: e.category }))),
+            ...staticProgramsData.flatMap(p => (p.gallery || []).map(url => ({ url, category: p.category }))),
+            { url: "https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=600&auto=format&fit=crop", category: "Education Programs" },
+            { url: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=600&auto=format&fit=crop", category: "Community" },
+            { url: "https://images.unsplash.com/photo-1583313262174-8fbd86fcd5dc?q=80&w=600&auto=format&fit=crop", category: "Community" },
+            { url: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=600&auto=format&fit=crop", category: "Medical Camps" },
+            { url: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=600&auto=format&fit=crop", category: "Women Empowerment" }
+        ];
+
+        const { data, error } = await supabase
+            .from("gallery")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (!error && data) {
+            const liveImages = data.map(item => ({
+                id: item.id,
+                url: item.image_url,
+                category: item.category || "Community",
+                isLive: true
+            }));
+            setImages([...liveImages, ...staticImgs]);
+        } else {
+            setImages(staticImgs);
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchImages();
+    }, []);
+
+    const handleDelete = async (url, e, id) => {
+        e.stopPropagation();
+        if (window.confirm("Are you sure you want to delete this photo from the gallery?")) {
+            if (id) {
+                await supabase
+                    .from("gallery")
+                    .delete()
+                    .eq("id", id);
+            }
+            // Update UI optimistically
+            setImages(images.filter(img => img.url !== url));
+            fetchImages();
+        }
+    };
 
     const filteredImages = activeCategory === "All"
-        ? galleryData
-        : galleryData.filter(img => img.category === activeCategory);
+        ? images
+        : images.filter(img => img.category === activeCategory);
 
     const displayedImages = filteredImages.slice(0, visibleCount);
 
@@ -105,7 +163,18 @@ export default function Gallery() {
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                        <Maximize2 size={32} className="text-white drop-shadow-md" />
+                                        <div className="flex gap-4">
+                                            <Maximize2 size={32} className="text-white drop-shadow-md" />
+                                            {isAuthenticated && img.isLive && (
+                                                <button 
+                                                    className="bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-110 active:scale-95 z-20"
+                                                    onClick={(e) => handleDelete(img.url, e, img.id)}
+                                                    title="Delete Image"
+                                                >
+                                                    <Trash2 size={24} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}

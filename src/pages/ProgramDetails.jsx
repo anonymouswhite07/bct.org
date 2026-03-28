@@ -1,16 +1,36 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Container } from "../components/layout/Container";
 import { Section } from "../components/layout/Section";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
 import { SectionTitle } from "../components/ui/SectionTitle";
-import { programsData } from "../data/programs";
-import { ArrowLeft, Target, HeartHandshake } from "lucide-react";
+import { getProgramsData } from "../data/programs";
+import { ArrowLeft, Target, HeartHandshake, Loader2 } from "lucide-react";
 
 export default function ProgramDetails() {
     const { id } = useParams();
-    const program = programsData.find(p => p.id === id);
+    const [program, setProgram] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const load = async () => {
+            const data = await getProgramsData();
+            const found = data.find(p => p.id === id || p.id.toString() === id);
+            setProgram(found);
+            setLoading(false);
+        };
+        load();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-cream">
+                <Loader2 size={48} className="text-primary animate-spin" />
+            </div>
+        );
+    }
 
     if (!program) {
         return (
@@ -50,7 +70,10 @@ export default function ProgramDetails() {
                         </Link>
 
                         <div className="inline-flex items-center bg-primary/20 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-primary/30">
-                            <program.icon size={20} className="text-secondary mr-2" />
+                            { program.icon ? 
+                                <program.icon size={20} className="text-secondary mr-2" /> : 
+                                <HeartHandshake size={20} className="text-secondary mr-2" /> 
+                            }
                             <span className="text-cream text-lg font-medium">{program.category}</span>
                         </div>
 
@@ -87,7 +110,7 @@ export default function ProgramDetails() {
                                         <h3 className="text-2xl font-bold text-slate-800">Key Objectives</h3>
                                     </div>
                                     <ul className="space-y-4">
-                                        {program.objectives.map((obj, i) => (
+                                        {(program.objectives || []).map((obj, i) => (
                                             <li key={i} className="flex gap-4">
                                                 <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold shrink-0 shadow-skeu-sm">
                                                     {i + 1}
@@ -112,7 +135,7 @@ export default function ProgramDetails() {
                                     </div>
 
                                     <ul className="space-y-5">
-                                        {program.stats.map((stat, i) => (
+                                        {(program.stats || []).map((stat, i) => (
                                             <li key={i} className="flex items-center justify-between border-b border-slate-100 pb-4 last:border-0 last:pb-0">
                                                 <span className="text-slate-600">{stat.label}</span>
                                                 <span className="font-bold text-slate-800 text-lg">{stat.value}</span>
@@ -148,7 +171,7 @@ export default function ProgramDetails() {
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
                         className="grid grid-cols-1 md:grid-cols-3 gap-6"
                     >
-                        {program.gallery.map((img, idx) => (
+                        {(program.gallery || []).map((img, idx) => (
                             <motion.div variants={fadeIn} key={idx} className="relative aspect-square md:aspect-video lg:aspect-square overflow-hidden rounded-2xl shadow-skeu-sm hover:shadow-skeu transition-all group cursor-pointer">
                                 <img
                                     src={img}

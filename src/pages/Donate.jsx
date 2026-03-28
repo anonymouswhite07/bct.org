@@ -6,7 +6,11 @@ import { Container } from "../components/layout/Container";
 import { Section } from "../components/layout/Section";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { Heart, Upload, AlertCircle, Smartphone, Camera, CheckCircle2, QrCode } from "lucide-react";
+import { Heart, Upload, AlertCircle, Smartphone, Camera, CheckCircle2, QrCode, Landmark } from "lucide-react";
+import { supabase } from "../lib/supabase";
+
+const CLOUD_NAME = "dcxaldazg";
+const UPLOAD_PRESET = "trust_upload";
 
 const donationTiers = [
     { amount: 500, label: "Meals", description: "Feeds homeless families." },
@@ -86,18 +90,48 @@ export default function Donate() {
         setLoading(true);
         setError(null);
 
-        // Here you would upload to Firebase/Supabase/Cloudinary if backend existed.
-        const mockSubmission = {
-            name: donorName,
-            amount: finalAmount,
-            fileName: screenshot.name,
-            date: new Date().toISOString()
-        };
-        console.log("Saving Donation Proof:", mockSubmission);
+        try {
+            const formData = new FormData();
+            formData.append("file", screenshot);
+            formData.append("upload_preset", UPLOAD_PRESET);
+            formData.append("folder", "donation-proofs");
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        navigate("/thank-you");
+            const uploadRes = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            if (!uploadRes.ok) throw new Error("File upload failed");
+
+            const uploadData = await uploadRes.json();
+            const proofUrl = uploadData.secure_url;
+
+            // Persistent Cloud Storage for Admin to view
+            const { error: dbError } = await supabase
+                .from("donations")
+                .insert([{
+                    name: donorName,
+                    amount: finalAmount,
+                    fileName: proofUrl, // Storing URL for visibility
+                    date: new Date().toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                    })
+                }]);
+
+            if (dbError) throw dbError;
+
+            setLoading(false);
+            navigate("/thank-you");
+        } catch (err) {
+            console.error("Submission error", err);
+            setError("Failed to submit proof. Please check your network.");
+            setLoading(false);
+        }
     };
 
     const fadeIn = {
@@ -249,11 +283,41 @@ export default function Donate() {
                                                     className="mt-6 w-full font-bold"
                                                     onClick={() => setShowProofForm(true)}
                                                 >
-                                                    I have scanned & paid
+                                                    Step 3: Upload Payment Proof
                                                 </SkeuButton>
                                             </div>
                                         )}
-                                        
+
+                                        {/* Bank Details Container (Cross-Device) */}
+                                        <div className="w-full mt-10 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl text-left">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                                    <Landmark size={20} />
+                                                </div>
+                                                <h3 className="font-bold text-slate-800">Direct Bank Transfer</h3>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-center border-b border-slate-200/50 pb-2">
+                                                    <span className="text-sm font-semibold text-slate-500 uppercase">Account Name</span>
+                                                    <span className="text-sm font-bold text-slate-800 text-right">BHARTHIMAEU CHARITABLE TRUST</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-slate-200/50 pb-2">
+                                                    <span className="text-sm font-semibold text-slate-500 uppercase">Account Number</span>
+                                                    <span className="text-sm font-mono font-bold text-slate-900 text-right">4373101010037</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-slate-200/50 pb-2">
+                                                    <span className="text-sm font-semibold text-slate-500 uppercase">IFSC Code</span>
+                                                    <span className="text-sm font-mono font-bold text-slate-900 text-right">CNRB0016319</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-sm font-semibold text-slate-500 uppercase">Bank Name</span>
+                                                    <span className="text-sm font-bold text-primary text-right uppercase">CANARA BANK</span>
+                                                </div>
+                                            </div>
+                                            <p className="mt-4 text-[11px] text-slate-500 font-medium italic leading-relaxed">
+                                                * After transfer, please take a screenshot and proceed to Step 3 below.
+                                            </p>
+                                        </div>
                                     </div>
                                 ) : (
                                     <p className="text-slate-400 italic">Please enter an amount above to proceed.</p>

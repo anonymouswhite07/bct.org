@@ -2,25 +2,31 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
-        if (login(email, password)) {
+        const success = await login(email, password);
+        
+        if (success) {
             navigate("/admin");
         } else {
-            setError("Invalid email or password.");
+            setError("Invalid email or password. Are you authorized?");
         }
+        
+        setLoading(false);
     };
 
     return (
@@ -65,16 +71,14 @@ export default function AdminLogin() {
                     </div>
 
                     <div className="pt-4">
-                        <SkeuButton type="submit" variant="primary" className="w-full py-4 text-lg">
-                            Login to Dashboard
+                        <SkeuButton type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
+                            {loading ? <div className="flex items-center justify-center gap-2"><Loader2 size={20} className="animate-spin" /> Authenticating...</div> : "Login to Dashboard"}
                         </SkeuButton>
                     </div>
                 </form>
 
                 <div className="mt-8 text-sm text-slate-500">
-                    <p>Demo Credentials:</p>
-                    <p>Email: admin@trustngo.org</p>
-                    <p>Password: admin123</p>
+                    <p>Secured by Supabase Engine.</p>
                 </div>
             </SkeuCard>
         </div>

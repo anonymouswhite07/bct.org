@@ -1,16 +1,36 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Container } from "../components/layout/Container";
 import { Section } from "../components/layout/Section";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
 import { SectionTitle } from "../components/ui/SectionTitle";
-import { eventsData } from "../data/events";
-import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
+import { getEventsData } from "../data/events";
+import { ArrowLeft, Calendar, MapPin, Clock, Loader2 } from "lucide-react";
 
 export default function EventDetails() {
     const { id } = useParams();
-    const event = eventsData.find(e => e.id === id);
+    const [event, setEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const load = async () => {
+            const data = await getEventsData();
+            const found = data.find(e => e.id === id || e.id.toString() === id);
+            setEvent(found);
+            setLoading(false);
+        };
+        load();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-cream">
+                <Loader2 size={48} className="text-primary animate-spin" />
+            </div>
+        );
+    }
 
     if (!event) {
         return (
@@ -143,7 +163,7 @@ export default function EventDetails() {
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
                         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
                     >
-                        {event.gallery.map((imgUrl, idx) => (
+                        {(event.gallery || []).map((imgUrl, idx) => (
                             <motion.div variants={fadeIn} key={idx} className="relative aspect-video sm:aspect-square md:aspect-video lg:aspect-square overflow-hidden rounded-2xl shadow-skeu-sm hover:shadow-skeu transition-all group cursor-pointer">
                                 <img
                                     src={imgUrl}

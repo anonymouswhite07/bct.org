@@ -114,6 +114,8 @@ export default function About() {
                                             src="/assets/team-founder.jpeg"
                                             alt="Sam Srivasan, Trust Founder"
                                             className="object-cover w-full h-full"
+                                            loading="lazy"
+                                            decoding="async"
                                         />
                                     </div>
                                 </div>

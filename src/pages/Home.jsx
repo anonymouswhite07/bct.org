@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PageContainer } from "../components/layout/PageContainer";
 import { Container } from "../components/layout/Container";
@@ -8,11 +9,53 @@ import { StatCard } from "../components/ui/StatCard";
 import { ProgramCard } from "../components/ui/ProgramCard";
 import { EventCard } from "../components/ui/EventCard";
 import { SectionTitle } from "../components/ui/SectionTitle";
-import { BookOpen, Stethoscope, Utensils, Users, ArrowRight, Quote } from "lucide-react";
+import { BookOpen, Stethoscope, Utensils, Users, ArrowRight, Quote, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import { staticProgramsData } from "../data/programs";
+import { staticEvents } from "../data/events";
 
 export default function Home() {
     const navigate = useNavigate();
+    const [previewImages, setPreviewImages] = useState([]);
+    const [counts, setCounts] = useState({ programs: 15, events: 3 });
+    const [latestEvent, setLatestEvent] = useState(null);
+
+    useEffect(() => {
+        const fetchHomeData = async () => {
+            // Gallery preview
+            const { data: galleryData } = await supabase
+                .from("gallery")
+                .select("image_url")
+                .order("created_at", { ascending: false })
+                .limit(6);
+            
+            const liveImageUrls = galleryData ? galleryData.map(item => item.image_url) : [];
+            const staticImages = [
+                "https://images.unsplash.com/photo-1593113563332-e1e1ba1f2214?q=80&w=600&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=600&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=600&auto=format&fit=crop"
+            ];
+            setPreviewImages([...liveImageUrls, ...staticImages].slice(0, 6));
+
+            // Statistics
+            const { count: progCount } = await supabase.from('programs').select('*', { count: 'exact', head: true });
+            const { count: evCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
+            setCounts({
+                programs: (progCount || 0) + staticProgramsData.length,
+                events: (evCount || 0) + staticEvents.length
+            });
+
+            // Latest Upcoming Event
+            const { data: evData } = await supabase.from('events').select('*').eq('status', 'upcoming').order('date', { ascending: true }).limit(1);
+            if (evData && evData.length > 0) {
+                setLatestEvent(evData[0]);
+            } else {
+                setLatestEvent(staticEvents.find(e => e.status === "upcoming"));
+            }
+        };
+        fetchHomeData();
+    }, []);
 
     const fadeIn = {
         hidden: { opacity: 0, y: 20 },
@@ -93,6 +136,8 @@ export default function Home() {
                                 src="/assets/our-mission.jpeg"
                                 alt="Barthimaeu Charitable Trust community mission work"
                                 className="object-cover w-full h-full"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                     </motion.div>
@@ -109,7 +154,7 @@ export default function Home() {
                         <motion.div variants={fadeIn}><StatCard number="10,000+" label="Lives Helped" /></motion.div>
                         <motion.div variants={fadeIn}><StatCard number="5,000+" label="Meals Served" /></motion.div>
                         <motion.div variants={fadeIn}><StatCard number="200+" label="Volunteers" /></motion.div>
-                        <motion.div variants={fadeIn}><StatCard number="15+" label="Community Projects" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number={`${counts.programs}+`} label="Community Projects" /></motion.div>
                     </motion.div>
                 </Container>
             </Section>
@@ -164,34 +209,20 @@ export default function Home() {
                     <SectionTitle title="Upcoming Events" subtitle="Join us in our upcoming community drives and campaigns." />
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12"
+                        className="grid grid-cols-1 md:grid-cols-1 gap-6 sm:gap-8 mt-8 sm:mt-12 max-w-2xl mx-auto"
                     >
                         <motion.div variants={fadeIn}>
-                            <EventCard
-                                title="Community Health Camp"
-                                date="Oct 15, 2026"
-                                location="City Square Park"
-                                description="A free mult-speciality health camp providing basic vitals check, dental, and eye checkups for the elderly."
-                                link="/events"
-                            />
-                        </motion.div>
-                        <motion.div variants={fadeIn}>
-                            <EventCard
-                                title="Weekly Food Donation Drive"
-                                date="Oct 18, 2026"
-                                location="Downtown Shelter Center"
-                                description="Help us pack, distribute and serve over 500 hot meals to the homeless in the downtown district."
-                                link="/events"
-                            />
-                        </motion.div>
-                        <motion.div variants={fadeIn}>
-                            <EventCard
-                                title="Education Scholarship Gala"
-                                date="Nov 5, 2026"
-                                location="Grand Hotel Auditorium"
-                                description="Annual fundraising event to sponsor the higher education of 50 brilliant students from underprivileged backgrounds."
-                                link="/events"
-                            />
+                            {latestEvent ? (
+                                <EventCard
+                                    title={latestEvent.title}
+                                    date={latestEvent.date}
+                                    location={latestEvent.location}
+                                    description={latestEvent.description}
+                                    link={latestEvent.id.toString().startsWith('event_') ? `/events` : `/events/${latestEvent.id}`}
+                                />
+                            ) : (
+                                <div className="text-center py-10 opacity-50">Loading latest events...</div>
+                            )}
                         </motion.div>
                     </motion.div>
                     <div className="mt-12 text-center">
@@ -210,21 +241,20 @@ export default function Home() {
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
                         className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mt-8 sm:mt-12"
                     >
-                        {[
-                            "https://images.unsplash.com/photo-1593113563332-e1e1ba1f2214?q=80&w=600&auto=format&fit=crop",
-                            "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=600&auto=format&fit=crop",
-                            "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=600&auto=format&fit=crop",
-                            "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=600&auto=format&fit=crop",
-                            "https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=600&auto=format&fit=crop",
-                            "https://images.unsplash.com/photo-1616606041122-8d776b26cf9c?q=80&w=600&auto=format&fit=crop"
-                        ].map((imgUrl, idx) => (
+                        {previewImages.map((imgUrl, idx) => (
                             <motion.div
                                 variants={fadeIn}
                                 key={idx}
                                 className="relative rounded-2xl overflow-hidden aspect-square shadow-skeu-sm hover:shadow-skeu transition-all cursor-pointer group"
                                 onClick={() => navigate('/gallery')}
                             >
-                                <img src={imgUrl} alt={`Gallery preview ${idx + 1}`} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
+                                <img 
+                                    src={imgUrl} 
+                                    alt={`Gallery preview ${idx + 1}`} 
+                                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" 
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                             </motion.div>
                         ))}
                     </motion.div>
@@ -245,9 +275,9 @@ export default function Home() {
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12"
                     >
                         {[
-                            { text: "This trust helped my children return to school after we lost everything in the flood. The uniform and books were a huge relief.", name: "Pradeep Sharma", location: "East District" },
-                            { text: "The free medical camp discovered my heart condition just in time. The continued support for my medication has been life-saving.", name: "Andrew", location: "Downtown" },
-                            { text: "Thanks to the women's skill development workshop, I now run my own tailoring shop and can comfortably provide for my family.", name: "Amos", location: "West End" },
+                            { text: "This trust helped my children return to school after we lost everything in the flood. The uniform and books were a huge relief.", name: "Pradeep Sharma", location: "Salem District" },
+                            { text: "The free medical camp discovered my heart condition just in time. The continued support for my medication has been life-saving.", name: "Andrew", location: "Salem District" },
+                            { text: "Thanks to the women's skill development workshop, I now run my own tailoring shop and can comfortably provide for my family.", name: "Amos", location: "Salem District" },
                         ].map((testimonial, idx) => (
                             <motion.div variants={fadeIn} key={idx}>
                                 <SkeuCard className="h-full flex flex-col justify-between">
@@ -267,23 +297,37 @@ export default function Home() {
             </Section>
 
             {/* Call to Action Section */}
-            <Section className="pb-32">
+            <Section className="pb-32 overflow-hidden">
                 <Container>
                     <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-                        <SkeuCard className="text-center py-10 sm:py-16 px-4 sm:px-6 md:px-16" hover={false}>
-                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-800 mb-4 sm:mb-6">Be part of the change.</h2>
-                            <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10">
-                                Help us build a better future. Your contribution, whether it’s time or money, goes directly towards uplifting communities in need.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                                <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Donate Now
-                                </SkeuButton>
-                                <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Become a Volunteer
-                                </SkeuButton>
+                        <div 
+                            className="relative rounded-[2rem] overflow-hidden py-16 sm:py-24 px-6 sm:px-12 md:px-24 text-center shadow-2xl"
+                            style={{
+                                backgroundImage: "url('/assets/be-part-of-the-change.jpeg')",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center"
+                            }}
+                        >
+                            {/* Dark overlay for text readability */}
+                            <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px]" />
+                            
+                            <div className="relative z-10 max-w-3xl mx-auto">
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight drop-shadow-md">
+                                    Join us in making a <span className="text-secondary">difference.</span>
+                                </h2>
+                                <p className="text-xl sm:text-2xl text-slate-100/90 mb-12 leading-relaxed font-light drop-shadow-sm">
+                                    Whether you want to contribute your time or make a donation, your support is the foundation of our work.
+                                </p>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                    <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-10 py-5" onClick={() => navigate('/donate')}>
+                                        Donate Now
+                                    </SkeuButton>
+                                    <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-10 py-5" onClick={() => navigate('/get-involved')}>
+                                        Become a Volunteer
+                                    </SkeuButton>
+                                </div>
                             </div>
-                        </SkeuCard>
+                        </div>
                     </motion.div>
                 </Container>
             </Section>

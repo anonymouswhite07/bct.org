@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PageContainer } from "../components/layout/PageContainer";
 import { Container } from "../components/layout/Container";
@@ -6,15 +7,26 @@ import { SectionTitle } from "../components/ui/SectionTitle";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
 import { EventCard } from "../components/events/EventCard";
-import { eventsData } from "../data/events";
-import { CalendarDays, HandHeart } from "lucide-react";
+import { getEventsData } from "../data/events";
+import { CalendarDays, HandHeart, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Events() {
     const navigate = useNavigate();
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const upcomingEvents = eventsData.filter(e => e.status === "upcoming");
-    const pastEvents = eventsData.filter(e => e.status === "past");
+    useEffect(() => {
+        const load = async () => {
+            const data = await getEventsData();
+            setEvents(data);
+            setLoading(false);
+        };
+        load();
+    }, []);
+
+    const upcomingEvents = events.filter(e => e.status === "upcoming");
+    const pastEvents = events.filter(e => e.status === "past");
 
     const fadeIn = {
         hidden: { opacity: 0, y: 30 },
@@ -88,23 +100,31 @@ export default function Events() {
             <Section className="pb-32 bg-cream">
                 <Container>
                     <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-                        <SkeuCard className="text-center py-16 px-6 md:px-16" hover={false}>
-                            <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center text-secondary mx-auto mb-6">
-                                <HandHeart size={40} />
+                        <div 
+                            className="relative rounded-[2rem] overflow-hidden py-16 sm:py-24 px-6 md:px-16 text-center shadow-2xl"
+                            style={{
+                                backgroundImage: "url('/assets/be-part-of-the-change.jpeg')",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center"
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px]" />
+                            
+                            <div className="relative z-10 max-w-4xl mx-auto">
+                                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">Want to participate in our upcoming events?</h2>
+                                <p className="text-xl text-slate-100/90 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+                                    We are always looking for passionate individuals to join our on-ground crew. Your time can translate into real impact.
+                                </p>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                    <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4 shadow-lg backdrop-blur-sm" onClick={() => navigate('/get-involved')}>
+                                        Volunteer Now
+                                    </SkeuButton>
+                                    <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4 shadow-lg" onClick={() => navigate('/donate')}>
+                                        Donate to Events
+                                    </SkeuButton>
+                                </div>
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-6">Want to participate in our upcoming events?</h2>
-                            <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-                                We are always looking for passionate individuals to join our on-ground crew. Your time can translate into real impact.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                                <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Volunteer Now
-                                </SkeuButton>
-                                <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Donate to Events
-                                </SkeuButton>
-                            </div>
-                        </SkeuCard>
+                        </div>
                     </motion.div>
                 </Container>
             </Section>

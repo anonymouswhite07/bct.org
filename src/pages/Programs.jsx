@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageContainer } from "../components/layout/PageContainer";
 import { Container } from "../components/layout/Container";
@@ -8,17 +8,28 @@ import { StatCard } from "../components/ui/StatCard";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
 import { ProgramCard } from "../components/programs/ProgramCard";
-import { programsData, programCategories } from "../data/programs";
+import { getProgramsData, programCategories } from "../data/programs";
 import { useNavigate } from "react-router-dom";
-import { Heart, HandHeart, Users } from "lucide-react";
+import { Heart, HandHeart, Users, Loader2 } from "lucide-react";
 
 export default function Programs() {
     const [activeCategory, setActiveCategory] = useState("All Programs");
+    const [programs, setPrograms] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const loadData = async () => {
+            const data = await getProgramsData();
+            setPrograms(data);
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
     const filteredPrograms = activeCategory === "All Programs"
-        ? programsData
-        : programsData.filter(program => program.category === activeCategory);
+        ? programs
+        : programs.filter(program => program.category === activeCategory);
 
     const fadeIn = {
         hidden: { opacity: 0, y: 20 },
@@ -112,23 +123,31 @@ export default function Programs() {
             <Section className="pb-32">
                 <Container>
                     <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-                        <SkeuCard className="text-center py-16 px-6 md:px-16" hover={false}>
-                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
-                                <HandHeart size={40} />
+                        <div 
+                            className="relative rounded-[2rem] overflow-hidden py-16 sm:py-24 px-6 md:px-16 text-center shadow-2xl"
+                            style={{
+                                backgroundImage: "url('/assets/programs-cta-bg.png')",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center"
+                            }}
+                        >
+                             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px]" />
+                            
+                            <div className="relative z-10 max-w-4xl mx-auto">
+                                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Want to contribute to our programs?</h2>
+                                <p className="text-xl text-slate-100 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+                                    Our programs rely heavily on the dedication of our volunteers and the generosity of our donors. Join us on the ground or support us financially.
+                                </p>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                    <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4 shadow-lg backdrop-blur-sm" onClick={() => navigate('/get-involved')}>
+                                        Become a Volunteer
+                                    </SkeuButton>
+                                    <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4 shadow-lg" onClick={() => navigate('/donate')}>
+                                        Donate to Support Programs
+                                    </SkeuButton>
+                                </div>
                             </div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-slate-800 mb-6">Want to contribute to our programs?</h2>
-                            <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-                                Our programs rely heavily on the dedication of our volunteers and the generosity of our donors. Join us on the ground or support us financially.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                                <SkeuButton variant="secondary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Become a Volunteer
-                                </SkeuButton>
-                                <SkeuButton variant="primary" className="w-full sm:w-auto text-lg px-8 py-4" onClick={() => navigate('/get-involved')}>
-                                    Donate to Support Programs
-                                </SkeuButton>
-                            </div>
-                        </SkeuCard>
+                        </div>
                     </motion.div>
                 </Container>
             </Section>

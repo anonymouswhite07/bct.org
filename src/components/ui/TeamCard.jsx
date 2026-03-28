@@ -22,6 +22,8 @@ export function TeamCard({ name, role, description, imageUrl }) {
                         alt={`${name} - ${role}`}
                         className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                         onError={() => setImgError(true)}
+                        loading="lazy"
+                        decoding="async"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">

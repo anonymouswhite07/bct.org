@@ -66,7 +66,7 @@ export default function Contact() {
                                         </div>
                                         <div>
                                             <h4 className="text-lg font-bold text-slate-800 mb-1">Phone Number</h4>
-                                            <p className="text-slate-600">+91 98765 43210<br />Mon - Sat: 9:00 AM - 6:00 PM</p>
+                                            <p className="text-slate-600">+91 94425 29635<br />+91 94862 27632<br />Mon - Sat: 9:00 AM - 6:00 PM</p>
                                         </div>
                                     </div>
 
