@@ -9,8 +9,8 @@ import { SkeuButton } from "../components/ui/SkeuButton";
 import { Heart, Upload, AlertCircle, Smartphone, Camera, CheckCircle2, QrCode, Landmark } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-const CLOUD_NAME = "dcxaldazg";
-const UPLOAD_PRESET = "trust_upload";
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const donationTiers = [
     { amount: 500, label: "Meals", description: "Feeds homeless families." },

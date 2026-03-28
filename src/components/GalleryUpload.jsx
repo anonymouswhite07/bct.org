@@ -16,8 +16,8 @@ export function GalleryUpload({ onUploadSuccess }) {
 
     const categories = ["Events", "Education Programs", "Medical Camps", "Food Distribution", "Volunteers", "Community", "Women Empowerment"];
 
-    const CLOUD_NAME = "dcxaldazg";
-    const UPLOAD_PRESET = "trust_upload";
+    const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
