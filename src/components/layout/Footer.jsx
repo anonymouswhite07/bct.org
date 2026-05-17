@@ -8,8 +8,8 @@ export function Footer() {
                 {/* Brand Column */}
                 <div className="sm:col-span-2">
                     <div className="flex items-center gap-3 mb-4">
-                        <img src="/assets/logo.png" alt="Barthimaeu Charitable Trust Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
-                        <h3 className="text-xl sm:text-2xl font-bold leading-tight">Barthimaeu Charitable Trust</h3>
+                        <img src="/assets/logo.png" alt="BHARTHIMAEU Charitable Trust Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
+                        <h3 className="text-xl sm:text-2xl font-bold leading-tight uppercase tracking-tight">BHARTHIMAEU Charitable Trust</h3>
                     </div>
                     <p className="text-sm text-slate-300 max-w-sm mb-6 leading-relaxed">
                         Empowering communities through health, education, and welfare. Dedicated to building a brighter future.
@@ -65,7 +65,7 @@ export function Footer() {
 
             {/* Bottom Bar */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-700 text-center text-xs sm:text-sm text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <span>&copy; {new Date().getFullYear()} Barthimaeu Charitable Trust. All rights reserved.</span>
+                <span>&copy; {new Date().getFullYear()} BHARTHIMAEU Charitable Trust. All rights reserved.</span>
                 <div className="space-x-4">
                     <Link to="/privacy" className="hover:text-cream">Privacy Policy</Link>
                     <Link to="/terms" className="hover:text-cream">Terms of Service</Link>

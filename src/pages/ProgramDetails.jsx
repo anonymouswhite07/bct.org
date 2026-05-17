@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Container } from "../components/layout/Container";
@@ -11,6 +11,7 @@ import { ArrowLeft, Target, HeartHandshake, Loader2 } from "lucide-react";
 
 export default function ProgramDetails() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [program, setProgram] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -149,10 +150,18 @@ export default function ProgramDetails() {
                                 <SkeuCard className="p-8" hover={false}>
                                     <h3 className="text-xl font-bold text-slate-800 mb-6">Support this Program</h3>
                                     <div className="space-y-4">
-                                        <SkeuButton variant="primary" className="w-full text-lg shadow-skeu">
+                                        <SkeuButton 
+                                            variant="primary" 
+                                            className="w-full text-lg shadow-skeu"
+                                            onClick={() => navigate('/donate')}
+                                        >
                                             Donate Now
                                         </SkeuButton>
-                                        <SkeuButton variant="outline" className="w-full text-lg shadow-skeu">
+                                        <SkeuButton 
+                                            variant="outline" 
+                                            className="w-full text-lg shadow-skeu"
+                                            onClick={() => navigate('/volunteer')}
+                                        >
                                             Volunteer Here
                                         </SkeuButton>
                                     </div>

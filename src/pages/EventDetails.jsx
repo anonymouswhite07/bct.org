@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Container } from "../components/layout/Container";
@@ -10,6 +10,7 @@ import { getEventsData } from "../data/events";
 import { ArrowLeft, Calendar, MapPin, Clock, Loader2 } from "lucide-react";
 
 export default function EventDetails() {
+    const navigate = useNavigate();
     const { id } = useParams();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -127,10 +128,10 @@ export default function EventDetails() {
                                     <div className="space-y-4">
                                         {isUpcoming ? (
                                             <>
-                                                <SkeuButton variant="primary" className="w-full text-lg shadow-skeu">
+                                                <SkeuButton variant="primary" className="w-full text-lg shadow-skeu" onClick={() => navigate('/contact')}>
                                                     Register to Attend
                                                 </SkeuButton>
-                                                <SkeuButton variant="outline" className="w-full text-lg shadow-skeu">
+                                                <SkeuButton variant="outline" className="w-full text-lg shadow-skeu" onClick={() => navigate('/volunteer')}>
                                                     Sign up to Volunteer
                                                 </SkeuButton>
                                             </>
@@ -138,11 +139,11 @@ export default function EventDetails() {
                                             <>
                                                 <p className="text-slate-600 mb-6 text-sm">
                                                     This event has concluded, but our mission continues. Check out our upcoming drives or contribute to our overarching fund.
-                                                </p>
-                                                <SkeuButton variant="secondary" className="w-full text-lg shadow-skeu">
+                                                 </p>
+                                                <SkeuButton variant="secondary" className="w-full text-lg shadow-skeu" onClick={() => navigate('/donate')}>
                                                     Donate Now
                                                 </SkeuButton>
-                                                <SkeuButton variant="outline" className="w-full text-lg shadow-skeu">
+                                                <SkeuButton variant="outline" className="w-full text-lg shadow-skeu" onClick={() => navigate('/events')}>
                                                     View Upcoming Events
                                                 </SkeuButton>
                                             </>

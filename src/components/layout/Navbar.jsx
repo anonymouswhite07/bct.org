@@ -44,11 +44,11 @@ export function Navbar() {
                     <Link to="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
                         <img
                             src="/assets/logo.png"
-                            alt="Barthimaeu Charitable Trust Logo"
+                            alt="BHARTHIMAEU Charitable Trust Logo"
                             className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                         />
-                        <span className="text-base sm:text-xl font-bold tracking-tight text-slate-800">
-                            Barthimaeu Trust
+                        <span className="text-base sm:text-xl font-bold tracking-tight text-slate-800 uppercase">
+                            BHARTHIMAEU Trust
                         </span>
                     </Link>
 
@@ -144,7 +144,7 @@ export function Navbar() {
                             Become a Volunteer
                         </Link>
                         <p className="text-center text-[10px] text-slate-400 mt-3 font-bold uppercase tracking-[0.2em]">
-                            Barthimaeu Trust
+                            BHARTHIMAEU Trust
                         </p>
                     </div>
                 </div>,

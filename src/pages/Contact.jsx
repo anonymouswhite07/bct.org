@@ -5,15 +5,39 @@ import { Section } from "../components/layout/Section";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { Mail, Phone, MapPin, Send, HelpCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, HelpCircle, Loader2 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function Contact() {
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "General Inquiry",
+        message: ""
+    });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 5000);
+        setLoading(true);
+        try {
+            const { error } = await supabase.from('messages').insert([{
+                ...formData,
+                type: 'Contact Inquiry',
+                status: 'unread',
+                created_at: new Date().toISOString()
+            }]);
+            if (error) throw error;
+            setSubmitted(true);
+            setTimeout(() => setSubmitted(false), 5000);
+        } catch (err) {
+            console.error("Submission error:", err);
+            alert("Failed to send message. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fadeIn = {
@@ -118,22 +142,41 @@ export default function Contact() {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full text-left">
                                                     <div className="flex flex-col gap-2">
                                                         <label className="text-sm font-semibold text-slate-700">Full Name</label>
-                                                        <input type="text" required placeholder="John Doe" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
+                                                        <input 
+                                                            type="text" required placeholder="John Doe" 
+                                                            className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                            value={formData.name}
+                                                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                        />
                                                     </div>
                                                     <div className="flex flex-col gap-2">
                                                         <label className="text-sm font-semibold text-slate-700">Email Address</label>
-                                                        <input type="email" required placeholder="john@example.com" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
+                                                        <input 
+                                                            type="email" required placeholder="john@example.com" 
+                                                            className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                            value={formData.email}
+                                                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                                        />
                                                     </div>
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 w-full text-left">
                                                     <label className="text-sm font-semibold text-slate-700">Phone Number (Optional)</label>
-                                                    <input type="tel" placeholder="+1 (555) 000-0000" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
+                                                    <input 
+                                                        type="tel" placeholder="+91 00000 00000" 
+                                                        className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                        value={formData.phone}
+                                                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                                    />
                                                 </div>
 
                                                 <div className="flex flex-col gap-2 w-full text-left">
                                                     <label className="text-sm font-semibold text-slate-700">Subject</label>
-                                                    <select className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner text-slate-700">
+                                                    <select 
+                                                        className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner text-slate-700"
+                                                        value={formData.subject}
+                                                        onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                                                    >
                                                         <option>General Inquiry</option>
                                                         <option>Donation Help</option>
                                                         <option>Volunteer Opportunity</option>
@@ -144,11 +187,21 @@ export default function Contact() {
 
                                                 <div className="flex flex-col gap-2 w-full text-left">
                                                     <label className="text-sm font-semibold text-slate-700">Your Message</label>
-                                                    <textarea rows="6" required className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner resize-none" placeholder="How can we help you?"></textarea>
+                                                    <textarea 
+                                                        rows="6" required 
+                                                        className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner resize-none" 
+                                                        placeholder="How can we help you?"
+                                                        value={formData.message}
+                                                        onChange={(e) => setFormData({...formData, message: e.target.value})}
+                                                    ></textarea>
                                                 </div>
 
-                                                <SkeuButton type="submit" variant="primary" className="w-full md:w-auto md:px-12 py-4 text-lg mt-4 self-start">
-                                                    <Send size={20} className="mr-2" /> Send Message
+                                                <SkeuButton type="submit" variant="primary" className="w-full md:w-auto md:px-12 py-4 text-lg mt-4 self-start" disabled={loading}>
+                                                    {loading ? (
+                                                        <span className="flex items-center gap-2"><Loader2 size={20} className="animate-spin" /> Sending...</span>
+                                                    ) : (
+                                                        <><Send size={20} className="mr-2" /> Send Message</>
+                                                    )}
                                                 </SkeuButton>
                                             </form>
                                         </>
@@ -165,7 +218,7 @@ export default function Contact() {
                 <SkeuCard className="w-full h-full p-2 border-none overflow-hidden" hover={false}>
                     <div className="w-full h-full bg-slate-200 rounded-xl relative overflow-hidden flex items-center justify-center">
                         {/* Simulating Map Embed */}
-                        <div className="absolute inset-0 bg-cover bg-center grayscale opacity-60" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200&auto=format&fit=crop')" }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-300 to-slate-200 opacity-80"></div>
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             whileInView={{ scale: 1, opacity: 1 }}
@@ -174,7 +227,7 @@ export default function Contact() {
                             <MapPin className="text-white drop-shadow" size={32} />
                         </motion.div>
                         <div className="absolute bottom-6 left-6 z-10 p-4 bg-white/80 backdrop-blur rounded-xl shadow-lg border border-white/50 max-w-sm hidden md:block">
-                            <h4 className="font-bold text-slate-800 mb-1">Barthimaeu Charitable Trust</h4>
+                            <h4 className="font-bold text-slate-800 mb-1">BHARTHIMAEU Charitable Trust</h4>
                             <p className="text-sm text-slate-600">7/121, House of Worship, Veddappan Kattu Valvu, Deevattipatty, Salem 636351, Tamil Nadu</p>
                         </div>
                     </div>

@@ -35,14 +35,7 @@ export function TeamCard({ name, role, description, imageUrl }) {
                 <h3 className="text-lg sm:text-xl font-bold text-slate-800">{name}</h3>
                 <p className="text-primary font-medium text-sm sm:text-base mb-3 sm:mb-4">{role}</p>
                 <p className="text-sm sm:text-base text-slate-600 mb-4 sm:mb-6 flex-grow">{description}</p>
-                <div className="flex justify-center gap-4 mt-auto">
-                    <a href="#" className="w-10 h-10 rounded-full bg-cream-dark/50 flex items-center justify-center hover:bg-primary hover:text-white transition-colors text-slate-600">
-                        <Linkedin size={18} />
-                    </a>
-                    <a href="#" className="w-10 h-10 rounded-full bg-cream-dark/50 flex items-center justify-center hover:bg-primary hover:text-white transition-colors text-slate-600">
-                        <Mail size={18} />
-                    </a>
-                </div>
+                {/* Social icons removed per user request */}
             </div>
         </SkeuCard>
     );

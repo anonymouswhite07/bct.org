@@ -65,8 +65,8 @@ export default function Programs() {
                         className="grid grid-cols-1 md:grid-cols-3 gap-8 -mt-12"
                     >
                         <motion.div variants={fadeIn}><StatCard number="15+" label="Active Programs" className="bg-white" /></motion.div>
-                        <motion.div variants={fadeIn}><StatCard number="10,000+" label="Beneficiaries" className="bg-white" /></motion.div>
-                        <motion.div variants={fadeIn}><StatCard number="200+" label="Volunteers" className="bg-white" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number="1 Lakh+" label="Beneficiaries" className="bg-white" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number="5000+" label="Volunteers" className="bg-white" /></motion.div>
                     </motion.div>
                 </Container>
             </Section>

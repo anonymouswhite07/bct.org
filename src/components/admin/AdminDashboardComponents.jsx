@@ -4,7 +4,8 @@ import { SkeuCard } from "../ui/SkeuCard";
 import { SkeuButton } from "../ui/SkeuButton";
 import { 
     LayoutDashboard, Users, Image as ImageIcon, CalendarDays, 
-    LogOut, Loader2, UploadCloud, Trash, Heart, Download, Maximize2, AlertCircle 
+    LogOut, Loader2, UploadCloud, Trash, Trash2, Heart, Download, Maximize2, AlertCircle, 
+    X, Edit, ImageOff, Hand, MessageSquare, Mail, Phone
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { staticEvents, galleryCategories } from "../../data/events";
@@ -23,6 +24,7 @@ export function DashboardLayout({ children }) {
         { id: "events", label: "Manage Events", icon: CalendarDays },
         { id: "gallery", label: "Manage Gallery", icon: ImageIcon },
         { id: "donations", label: "Manage Donations", icon: Heart },
+        { id: "messages", label: "Message Center", icon: MessageSquare },
     ];
 
     return (
@@ -30,7 +32,7 @@ export function DashboardLayout({ children }) {
             {/* Sidebar Navigation */}
             <aside className="w-64 bg-slate-800 text-cream fixed h-full flex flex-col z-20 shadow-xl overflow-y-auto">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold tracking-tight mb-2">Barthimaeu Admin</h2>
+                    <h2 className="text-2xl font-bold tracking-tight mb-2 uppercase">BHARTHIMAEU Admin</h2>
                     <p className="text-slate-400 text-sm">Content Management System</p>
                 </div>
 
@@ -91,6 +93,11 @@ export function DashboardLayout({ children }) {
                         {activeTab === "donations" && (
                             <motion.div key="donations" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                                 <DonationManager />
+                            </motion.div>
+                        )}
+                        {activeTab === "messages" && (
+                            <motion.div key="messages" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                                <MessageManager />
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -467,6 +474,7 @@ function EventManager() {
 function ProgramManager() {
     const [programs, setPrograms] = useState([]);
     const [isAdding, setIsAdding] = useState(false);
+    const [editingProgram, setEditingProgram] = useState(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [newProgram, setNewProgram] = useState({ 
@@ -498,34 +506,66 @@ function ProgramManager() {
         fetchPrograms();
     }, []);
 
+    const uploadToCloudinary = async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "trust_upload");
+        formData.append("folder", "trust-programs");
+        const response = await fetch("https://api.cloudinary.com/v1_1/dcxaldazg/image/upload", {
+            method: "POST",
+            body: formData,
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.secure_url;
+        }
+        alert("Image upload failed.");
+        return null;
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        setUploading(true);
+
+        let imageUrl = editingProgram.image;
+        if (editingProgram.imageFile) {
+            imageUrl = await uploadToCloudinary(editingProgram.imageFile);
+            if (!imageUrl) {
+                setUploading(false);
+                return;
+            }
+        }
+
+        const entry = {
+            title: editingProgram.title,
+            category: editingProgram.category,
+            description: editingProgram.description,
+            longDescription: editingProgram.longDescription,
+            impact: editingProgram.impact,
+            objectives: editingProgram.objectives_text ? editingProgram.objectives_text.split('\n').filter(o => o.trim() !== '') : editingProgram.objectives,
+            image: imageUrl
+        };
+
+        const { error } = await supabase.from('programs').update(entry).eq('id', editingProgram.id);
+
+        if (error) {
+            console.error("Supabase Error", error);
+            alert("Database update error.");
+        } else {
+            fetchPrograms();
+            setEditingProgram(null);
+        }
+        setUploading(false);
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
         setUploading(true);
-        let imageUrl = "https://images.unsplash.com/photo-1593113563332-e1e1ba1f2214?q=80&w=600&auto=format&fit=crop";
+        let imageUrl = "";
 
         if (newProgram.imageFile) {
-            try {
-                const formData = new FormData();
-                formData.append("file", newProgram.imageFile);
-                formData.append("upload_preset", "trust_upload");
-                formData.append("folder", "trust-programs");
-
-                const response = await fetch("https://api.cloudinary.com/v1_1/dcxaldazg/image/upload", {
-                    method: "POST",
-                    body: formData,
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    imageUrl = data.secure_url;
-                } else {
-                    alert("Image upload failed.");
-                    setUploading(false);
-                    return;
-                }
-            } catch (err) {
-                console.error("Upload error", err);
-                alert("Upload failed.");
+            imageUrl = await uploadToCloudinary(newProgram.imageFile);
+            if (!imageUrl) {
                 setUploading(false);
                 return;
             }
@@ -556,12 +596,10 @@ function ProgramManager() {
 
     const handleDelete = async (id) => {
         if (window.confirm("Permanently archive this program? This action cannot be undone.")) {
-            // Check if it's a supabase ID (string/uuid) or static (number)
             if (typeof id === 'string' || typeof id === 'number') {
                 const { error } = await supabase.from('programs').delete().eq('id', id);
                 if (error) {
                     console.error("Database deletion error:", error);
-                    // Even if database fails (e.g. static item not in DB), we update UI optimistically
                 }
                 setPrograms(programs.filter(p => p.id !== id));
             }
@@ -585,6 +623,10 @@ function ProgramManager() {
             {isAdding && (
                 <SkeuCard className="p-8 border-2 border-primary/20 bg-primary/5">
                     <form onSubmit={handleSave} className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold text-primary">Adding New Program</h3>
+                            <button type="button" onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-red-500"><X size={20}/></button>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700">Program Title</label>
@@ -670,35 +712,162 @@ function ProgramManager() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {programs.map((program) => (
-                    <SkeuCard key={program.id} className="p-0 overflow-hidden flex flex-col h-full bg-white shadow-sm hover:shadow-skeu-sm" hover={false}>
+                {programs.map((p) => (
+                    <SkeuCard key={p.id} className="p-0 overflow-hidden flex flex-col h-full bg-white shadow-sm hover:shadow-skeu-sm" hover={false}>
                         <div className="h-40 w-full overflow-hidden relative">
-                            <img src={program.image} alt={program.title} className="w-full h-full object-cover" />
+                            <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
                             <div className="absolute top-2 right-2 bg-white/90 px-2 py-1 text-xs font-bold rounded-md shadow flex items-center gap-2">
-                                {program.category}
+                                {p.category}
                             </div>
-                            {program.impact && (
+                            {p.impact && (
                                 <div className="absolute bottom-2 left-2 bg-primary/90 text-white px-2 py-1 text-[10px] font-bold rounded-md shadow">
-                                    {program.impact}
+                                    {p.impact}
                                 </div>
                             )}
                         </div>
                         <div className="p-6 flex flex-col flex-grow">
-                            <h3 className="text-xl font-bold text-slate-800 mb-2">{program.title}</h3>
-                            <p className="text-slate-500 text-sm line-clamp-2 mb-6">{program.description}</p>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">{p.title}</h3>
+                            <p className="text-slate-500 text-sm line-clamp-2 mb-6">{p.description}</p>
 
-                            <div className="mt-auto grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
-                                <button className="py-2 px-4 rounded-lg bg-primary/10 text-primary font-semibold hover:bg-primary hover:text-white transition-colors text-sm" onClick={() => alert('Editing live program not yet implemented. Please delete and recreate.')}>
-                                    Edit Mode
-                                </button>
-                                <button className="py-2 px-4 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-500 hover:text-white transition-colors text-sm" onClick={() => handleDelete(program.id)}>
-                                    Archive
-                                </button>
-                            </div>
+                            <div className="mt-auto flex items-center gap-4">
+                                    <button 
+                                        className="p-3 bg-slate-50 rounded-xl hover:bg-primary/10 text-slate-400 hover:text-primary transition-all border border-slate-100"
+                                        onClick={() => setEditingProgram({
+                                            ...p,
+                                            objectives_text: Array.isArray(p.objectives) ? p.objectives.join('\n') : p.objectives,
+                                            imageFile: null
+                                        })}
+                                    >
+                                        <Edit size={20} />
+                                    </button>
+                                    <button 
+                                        className="p-3 bg-slate-50 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all border border-slate-100"
+                                        onClick={() => handleDelete(p.id)}
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
                         </div>
                     </SkeuCard>
                 ))}
             </div>
+
+            {editingProgram && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <SkeuCard className="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 border-2 border-primary/30">
+                        <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                            <h2 className="text-3xl font-bold text-slate-800">Editing: {editingProgram.title}</h2>
+                            <button onClick={() => setEditingProgram(null)} className="text-slate-400 hover:text-red-500">
+                                <X size={28} />
+                            </button>
+                        </div>
+                        
+                        <form onSubmit={handleUpdate} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Program Title</label>
+                                    <input 
+                                        required
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                        value={editingProgram.title}
+                                        onChange={e => setEditingProgram({...editingProgram, title: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Category</label>
+                                    <select 
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                        value={editingProgram.category}
+                                        onChange={e => setEditingProgram({...editingProgram, category: e.target.value})}
+                                    >
+                                        {programCategories.filter(c => c !== "All Programs").map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Short Description (Cards)</label>
+                                <textarea 
+                                    required
+                                    rows={2}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                    value={editingProgram.description}
+                                    onChange={e => setEditingProgram({...editingProgram, description: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Detailed Journey (Program Page)</label>
+                                <textarea 
+                                    required
+                                    rows={4}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                    value={editingProgram.longDescription}
+                                    onChange={e => setEditingProgram({...editingProgram, longDescription: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Key Impact Metric</label>
+                                    <input 
+                                        required
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                        value={editingProgram.impact}
+                                        onChange={e => setEditingProgram({...editingProgram, impact: e.target.value})}
+                                        placeholder="e.g. 5,000+ meals served"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Banner Image File (Keep empty to preserve current)</label>
+                                    <input 
+                                        type="file"
+                                        accept="image/*"
+                                        className="w-full px-4 py-2 text-sm text-slate-500"
+                                        onChange={e => setEditingProgram({...editingProgram, imageFile: e.target.files[0]})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Objectives (One per line)</label>
+                                <textarea 
+                                    rows={4}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-primary shadow-inner"
+                                    value={editingProgram.objectives_text}
+                                    onChange={e => setEditingProgram({...editingProgram, objectives_text: e.target.value})}
+                                    placeholder="Provide daily meals&#10;Distribute grocery kits"
+                                />
+                            </div>
+
+                            <div className="flex gap-4 pt-6">
+                                <SkeuButton 
+                                    variant="outline" 
+                                    className="flex-1 text-slate-600" 
+                                    type="button"
+                                    onClick={() => setEditingProgram(null)}
+                                >
+                                    Cancel
+                                </SkeuButton>
+                                <SkeuButton 
+                                    variant="primary" 
+                                    className="flex-[2] text-white" 
+                                    type="submit"
+                                    disabled={uploading}
+                                >
+                                    {uploading ? (
+                                        <span className="flex items-center gap-2"><Loader2 size={18} className="animate-spin" /> Saving Changes...</span>
+                                    ) : (
+                                        "Save Changes"
+                                    )}
+                                </SkeuButton>
+                            </div>
+                        </form>
+                    </SkeuCard>
+                </div>
+            )}
         </div>
     );
 }
@@ -707,6 +876,7 @@ function DonationManager() {
     const [donations, setDonations] = useState([]);
     const [filter, setFilter] = useState("All");
     const [loading, setLoading] = useState(true);
+    const [selectedProof, setSelectedProof] = useState(null);
 
     const fetchDonations = async () => {
         setLoading(true);
@@ -735,6 +905,11 @@ function DonationManager() {
 
     return (
         <div className="space-y-8">
+            {selectedProof && (
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setSelectedProof(null)}>
+                    <img src={selectedProof} className="max-w-full max-h-[90vh] rounded-xl shadow-2xl" />
+                </div>
+            )}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800">Donation Proofs</h1>
@@ -787,27 +962,27 @@ function DonationManager() {
                                         ₹{donation.amount}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {donation.fileName && donation.fileName.startsWith('http') ? (
-                                            <div className="group relative w-16 h-16 cursor-zoom-in">
-                                                <img 
-                                                    src={donation.fileName} 
-                                                    alt="Proof" 
-                                                    className="w-full h-full object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform" 
-                                                />
-                                                <a 
-                                                    href={donation.fileName} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="absolute inset-0 bg-black/40 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-lg transition-opacity"
+                                        <div className="flex items-center gap-3">
+                                            {donation.proof_url ? (
+                                                <div 
+                                                    className="relative cursor-zoom-in group"
+                                                    onClick={() => setSelectedProof(donation.proof_url)}
                                                 >
-                                                    <Maximize2 size={16} />
-                                                </a>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-slate-400 font-medium text-xs italic">
-                                                <AlertCircle size={14} /> Legacy Record
-                                            </div>
-                                        )}
+                                                    <img 
+                                                        src={donation.proof_url} 
+                                                        className="w-16 h-16 rounded-xl shadow-lg border-2 border-white object-cover transition-transform group-hover:scale-105" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                                        <Maximize2 size={16} className="text-white mb-1" />
+                                                        <span className="text-[10px] text-white font-bold">VIEW</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
+                                                    <ImageOff size={20} />
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex flex-col gap-2 scale-90 origin-right">
@@ -849,6 +1024,167 @@ function DonationManager() {
                         </tbody>
                     </table>
                 </SkeuCard>
+            )}
+        </div>
+    );
+}
+
+function MessageManager() {
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
+    const [filter, setFilter] = useState("All");
+
+    const fetchMessages = async () => {
+        setLoading(true);
+        setFetchError(null);
+        try {
+            const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error("Fetch Error:", error);
+                setFetchError(error.message);
+            } else if (data) {
+                setMessages(data);
+            }
+        } catch (err) {
+            console.error("Fetch Exception:", err);
+            setFetchError("Critical failure connecting to Supabase.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMessages();
+    }, []);
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Archive this message permanently?")) {
+            const { error } = await supabase.from('messages').delete().eq('id', id);
+            if (error) {
+                alert("Archive failed: " + error.message);
+            } else {
+                setMessages(messages.filter(m => m.id !== id));
+            }
+        }
+    };
+
+    const toggleReadStatus = async (id, currentStatus) => {
+        const newStatus = currentStatus === 'unread' ? 'read' : 'unread';
+        const { error } = await supabase.from('messages').update({ status: newStatus }).eq('id', id);
+        if (error) {
+            alert("Status update failed: " + error.message);
+        } else {
+            setMessages(messages.map(m => m.id === id ? { ...m, status: newStatus } : m));
+        }
+    };
+
+    const filteredMessages = filter === "All" 
+        ? messages 
+        : messages.filter(m => m.type === filter);
+
+    const categories = ["All", ...new Set(messages.map(m => m.type))];
+
+    return (
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-800">Message Center</h1>
+                    <p className="text-slate-500 mt-2">View and respond to inquiries, volunteer apps, and partnership requests.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                    {categories.map(c => (
+                        <button 
+                            key={c}
+                            onClick={() => setFilter(c)}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                filter === c 
+                                ? "bg-primary text-white border-primary shadow-skeu-sm" 
+                                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            }`}
+                        >
+                            {c}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="py-20 flex justify-center items-center">
+                    <Loader2 size={40} className="text-primary animate-spin" />
+                </div>
+            ) : fetchError ? (
+                <div className="py-20 text-center bg-red-50 border-2 border-red-100 rounded-3xl p-10 max-w-2xl mx-auto">
+                    <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-red-800 mb-2">Message Center Blocker</h3>
+                    <p className="text-red-600 mb-6 leading-relaxed">
+                        There was an error while trying to reach your 'messages' table: <br/> 
+                        <span className="font-mono bg-white px-2 py-1 rounded border border-red-100 text-sm">{fetchError}</span>
+                    </p>
+                    <p className="text-slate-500 text-sm mb-6">
+                        If you see 'relation "messages" does not exist', ensure you've executed the SQL script in your Supabase dashboard. 
+                        If it's an RLS error, verify your admin account has read permissions.
+                    </p>
+                    <SkeuButton variant="primary" onClick={fetchMessages}>Retry Connection</SkeuButton>
+                </div>
+            ) : messages.length === 0 ? (
+                <div className="py-32 text-center bg-white border border-slate-200 rounded-3xl shadow-skeu-inner">
+                    <MessageSquare size={48} className="text-slate-200 mx-auto mb-4" />
+                    <p className="text-slate-400 font-medium text-xl">Inbox empty. No website messages yet.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-6">
+                    {filteredMessages.map((msg) => (
+                        <SkeuCard key={msg.id} className={`p-0 overflow-hidden border-l-4 transition-all ${
+                            msg.status === 'unread' ? 'border-primary bg-white ring-2 ring-primary/5 shadow-md' : 'border-slate-300 bg-slate-50/50 opacity-80'
+                        }`} hover={false}>
+                            <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6">
+                                <div className="flex-1">
+                                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                            msg.type === 'Volunteer Application' ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary'
+                                        }`}>
+                                            {msg.type}
+                                        </span>
+                                        <span className="text-xs text-slate-400 font-medium">
+                                            {new Date(msg.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                                        </span>
+                                        {msg.status === 'unread' && (
+                                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">{msg.subject}</h3>
+                                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 mb-6 font-medium">
+                                        <div className="flex items-center gap-2"><Users size={14} className="text-primary" /> {msg.name}</div>
+                                        <div className="flex items-center gap-2"><Mail size={14} className="text-secondary" /> {msg.email}</div>
+                                        {msg.phone && <div className="flex items-center gap-2"><Phone size={14} className="text-slate-400" /> {msg.phone}</div>}
+                                    </div>
+                                    <div className="bg-white/80 p-5 rounded-2xl border border-slate-200 text-slate-700 leading-relaxed whitespace-pre-wrap text-sm italic shadow-inner">
+                                        "{msg.message}"
+                                    </div>
+                                </div>
+                                <div className="flex md:flex-col gap-3 justify-end md:w-32">
+                                    <button 
+                                        onClick={() => toggleReadStatus(msg.id, msg.status)}
+                                        className={`flex-1 md:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                                            msg.status === 'unread' 
+                                            ? 'bg-primary text-white border-primary shadow-skeu-sm hover:brightness-110' 
+                                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        {msg.status === 'unread' ? 'MARK READ' : 'MARK UNREAD'}
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDelete(msg.id)}
+                                        className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-red-500 border border-slate-200 hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Trash2 size={14} /> DELETE
+                                    </button>
+                                </div>
+                            </div>
+                        </SkeuCard>
+                    ))}
+                </div>
             )}
         </div>
     );

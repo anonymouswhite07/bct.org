@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { staticProgramsData } from "../data/programs";
 import { staticEvents } from "../data/events";
+import { uploadedPhotos } from "../data/uploadedPhotos";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -24,19 +25,17 @@ export default function Home() {
     useEffect(() => {
         const fetchHomeData = async () => {
             // Gallery preview
-            const { data: galleryData } = await supabase
-                .from("gallery")
-                .select("image_url")
-                .order("created_at", { ascending: false })
-                .limit(6);
-            
-            const liveImageUrls = galleryData ? galleryData.map(item => item.image_url) : [];
-            const staticImages = [
-                "https://images.unsplash.com/photo-1593113563332-e1e1ba1f2214?q=80&w=600&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=600&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=600&auto=format&fit=crop"
-            ];
-            setPreviewImages([...liveImageUrls, ...staticImages].slice(0, 6));
+            let liveImageUrls = [];
+            try {
+                const { data: galleryData } = await supabase.from("gallery").select("image_url").order("created_at", { ascending: false }).limit(6);
+                liveImageUrls = galleryData ? galleryData.map(item => item.image_url) : [];
+            } catch (err) {
+                console.error("Gallery fetch failed", err);
+            }
+            if (liveImageUrls.length === 0) {
+                liveImageUrls = uploadedPhotos;
+            }
+            setPreviewImages(liveImageUrls.slice(0, 6));
 
             // Statistics
             const { count: progCount } = await supabase.from('programs').select('*', { count: 'exact', head: true });
@@ -93,7 +92,7 @@ export default function Home() {
                         className="text-center max-w-4xl mx-auto"
                     >
                         <span className="inline-block px-4 py-1.5 sm:px-5 sm:py-2 bg-white/15 backdrop-blur-sm text-white text-xs sm:text-sm font-bold uppercase tracking-widest rounded-full mb-6 sm:mb-8 border border-white/20">
-                            Barthimaeu Charitable Trust
+                            BHARTHIMAEU Charitable Trust
                         </span>
                         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-4 sm:mb-6 leading-tight drop-shadow-lg">
                             Empowering{" "}
@@ -134,7 +133,7 @@ export default function Home() {
                         <div className="relative rounded-2xl overflow-hidden aspect-square shadow-skeu">
                             <img
                                 src="/assets/our-mission.jpeg"
-                                alt="Barthimaeu Charitable Trust community mission work"
+                                alt="BHARTHIMAEU Charitable Trust community mission work"
                                 className="object-cover w-full h-full"
                                 loading="lazy"
                                 decoding="async"
@@ -151,9 +150,9 @@ export default function Home() {
                         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
                         className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8"
                     >
-                        <motion.div variants={fadeIn}><StatCard number="10,000+" label="Lives Helped" /></motion.div>
-                        <motion.div variants={fadeIn}><StatCard number="5,000+" label="Meals Served" /></motion.div>
-                        <motion.div variants={fadeIn}><StatCard number="200+" label="Volunteers" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number="1 Lakh +" label="Lives Helped" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number="2 Lakh +" label="Meals Served" /></motion.div>
+                        <motion.div variants={fadeIn}><StatCard number="5000+" label="Volunteers" /></motion.div>
                         <motion.div variants={fadeIn}><StatCard number={`${counts.programs}+`} label="Community Projects" /></motion.div>
                     </motion.div>
                 </Container>

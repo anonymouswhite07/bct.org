@@ -59,7 +59,7 @@ export default function About() {
                         </div>
                         <div className="relative rounded-2xl overflow-hidden shadow-skeu aspect-video md:aspect-square">
                             <img
-                                src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1000&auto=format&fit=crop"
+                                src="/assets/our-history.jpeg"
                                 alt="Community volunteers organizing relief efforts"
                                 className="object-cover w-full h-full"
                             />

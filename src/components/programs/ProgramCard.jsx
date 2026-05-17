@@ -1,9 +1,11 @@
 import { SkeuCard } from "../ui/SkeuCard";
 import { SkeuButton } from "../ui/SkeuButton";
-import { ArrowRight, Activity } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Activity, Heart, Hand } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export function ProgramCard({ id, icon: Icon, image, title, description, impact }) {
+    const navigate = useNavigate();
+
     return (
         <SkeuCard className="flex flex-col h-full !p-0 overflow-hidden group">
             <div className="relative h-48 overflow-hidden bg-cream-dark/50">
@@ -34,7 +36,26 @@ export function ProgramCard({ id, icon: Icon, image, title, description, impact 
                     <span className="truncate">{impact}</span>
                 </div>
 
-                <Link to={`/programs/${id}`}>
+                <div className="grid grid-cols-2 gap-3 mt-auto">
+                    <SkeuButton 
+                        variant="secondary" 
+                        className="text-sm px-2 gap-1"
+                        onClick={() => navigate('/volunteer')}
+                    >
+                        <Hand size={14} />
+                        Volunteer
+                    </SkeuButton>
+                    <SkeuButton 
+                        variant="primary" 
+                        className="text-sm px-2 gap-1"
+                        onClick={() => navigate('/donate')}
+                    >
+                        <Heart size={14} />
+                        Donate
+                    </SkeuButton>
+                </div>
+
+                <Link to={`/programs/${id}`} className="mt-4">
                     <SkeuButton variant="outline" className="w-full justify-between items-center group-hover:bg-primary group-hover:text-white transition-all">
                         <span>Learn More</span>
                         <ArrowRight size={18} className="transform group-hover:translate-x-1 transition-transform" />

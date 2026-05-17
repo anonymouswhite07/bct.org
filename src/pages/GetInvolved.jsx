@@ -5,16 +5,48 @@ import { Section } from "../components/layout/Section";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { HandHeart, Users, Heart, GraduationCap, Stethoscope, Utensils } from "lucide-react";
+import { HandHeart, Users, Heart, GraduationCap, Stethoscope, Utensils, Loader2 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function GetInvolved() {
     const [activeForm, setActiveForm] = useState("volunteer");
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        interest: "Education Support",
+        motivation: ""
+    });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 5000);
+        setLoading(true);
+        try {
+            const { error } = await supabase.from('messages').insert([{
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                subject: `Application: ${activeForm.toUpperCase()} - ${formData.interest}`,
+                message: formData.motivation,
+                type: `${activeForm.charAt(0).toUpperCase() + activeForm.slice(1)} Interest`,
+                status: 'unread',
+                created_at: new Date().toISOString()
+            }]);
+            
+            if (error) {
+                console.error("Submission error:", error);
+                alert("Submission failed. Please try again later.");
+            } else {
+                setSubmitted(true);
+                setTimeout(() => setSubmitted(false), 5000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fadeIn = {
@@ -91,38 +123,67 @@ export default function GetInvolved() {
                                     </div>
 
                                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-semibold text-slate-700">Full Name</label>
-                                            <input type="text" required placeholder="John Doe" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-semibold text-slate-700">Email Address</label>
-                                            <input type="email" required placeholder="john@example.com" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-semibold text-slate-700">Phone Number</label>
-                                            <input type="tel" placeholder="+1 (555) 000-0000" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-semibold text-slate-700">{activeForm === "donate" ? "Area of Interest" : "Skills / Expertise"}</label>
-                                            <select className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner text-slate-700">
-                                                <option>Education Support</option>
-                                                <option>Healthcare Camps</option>
-                                                <option>Food Distribution</option>
-                                                <option>Women Empowerment</option>
-                                                <option>Community Welfare</option>
-                                            </select>
-                                        </div>
-                                        <div className="flex flex-col gap-2 md:col-span-2">
-                                            <label className="text-sm font-semibold text-slate-700">Why do you want to join us?</label>
-                                            <textarea rows="4" className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner resize-none" placeholder="Share your motivation..."></textarea>
-                                        </div>
-                                        <div className="md:col-span-2 pt-4">
-                                            <SkeuButton type="submit" variant="primary" className="w-full py-4 text-lg">
-                                                Submit Application
-                                            </SkeuButton>
-                                        </div>
-                                    </form>
+                                         <div className="flex flex-col gap-2">
+                                             <label className="text-sm font-semibold text-slate-700">Full Name</label>
+                                             <input 
+                                                 type="text" required placeholder="John Doe" 
+                                                 className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                 value={formData.name}
+                                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                             />
+                                         </div>
+                                         <div className="flex flex-col gap-2">
+                                             <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                                             <input 
+                                                 type="email" required placeholder="john@example.com" 
+                                                 className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                 value={formData.email}
+                                                 onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                             />
+                                         </div>
+                                         <div className="flex flex-col gap-2">
+                                             <label className="text-sm font-semibold text-slate-700">Phone Number</label>
+                                             <input 
+                                                 type="tel" placeholder="+91 00000 00000" 
+                                                 className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner" 
+                                                 value={formData.phone}
+                                                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                             />
+                                         </div>
+                                         <div className="flex flex-col gap-2">
+                                             <label className="text-sm font-semibold text-slate-700">{activeForm === "donate" ? "Area of Interest" : "Skills / Expertise"}</label>
+                                             <select 
+                                                className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner text-slate-700"
+                                                value={formData.interest}
+                                                onChange={(e) => setFormData({...formData, interest: e.target.value})}
+                                            >
+                                                 <option>Education Support</option>
+                                                 <option>Healthcare Camps</option>
+                                                 <option>Food Distribution</option>
+                                                 <option>Women Empowerment</option>
+                                                 <option>Community Welfare</option>
+                                             </select>
+                                         </div>
+                                         <div className="flex flex-col gap-2 md:col-span-2">
+                                             <label className="text-sm font-semibold text-slate-700">Why do you want to join us?</label>
+                                             <textarea 
+                                                rows="4" required
+                                                className="px-4 py-3 rounded-xl border border-slate-200 bg-cream/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner resize-none" 
+                                                placeholder="Share your motivation..."
+                                                value={formData.motivation}
+                                                onChange={(e) => setFormData({...formData, motivation: e.target.value})}
+                                            ></textarea>
+                                         </div>
+                                         <div className="md:col-span-2 pt-4">
+                                             <SkeuButton type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
+                                                 {loading ? (
+                                                     <div className="flex items-center justify-center gap-2 text-white">
+                                                         <Loader2 size={24} className="animate-spin" /> Submitting...
+                                                     </div>
+                                                 ) : "Submit Application"}
+                                             </SkeuButton>
+                                         </div>
+                                     </form>
                                 </>
                             )}
                         </SkeuCard>

@@ -5,10 +5,12 @@ import { Section } from "../components/layout/Section";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { SkeuCard } from "../components/ui/SkeuCard";
 import { SkeuButton } from "../components/ui/SkeuButton";
-import { UserPlus, Mail, Phone, MapPin, CheckCircle2, Heart } from "lucide-react";
+import { UserPlus, Mail, Phone, MapPin, CheckCircle2, Heart, Loader2 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function Volunteer() {
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -18,12 +20,29 @@ export default function Volunteer() {
         interest: "Community Programs"
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitted(true);
-        // Simulation of DB storage (Firebase/Supabase)
-        console.log("Stewardship: Adding new volunteer to database...", formData);
-        setTimeout(() => setSubmitted(false), 8000);
+        setLoading(true);
+        try {
+            const { error } = await supabase.from('messages').insert([{
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                subject: `Volunteer Interest: ${formData.interest}`,
+                message: `Location: ${formData.city}, ${formData.state}`,
+                type: 'Volunteer Application',
+                status: 'unread',
+                created_at: new Date().toISOString()
+            }]);
+            if (error) throw error;
+            setSubmitted(true);
+            setTimeout(() => setSubmitted(false), 8000);
+        } catch (err) {
+            console.error("Submission error:", err);
+            alert("Failed to send registration. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fadeIn = {
@@ -126,8 +145,12 @@ export default function Volunteer() {
                                             </div>
 
                                             <div className="pt-6">
-                                                <SkeuButton type="submit" variant="primary" className="w-full py-5 text-xl shadow-skeu font-bold">
-                                                    Become a Volunteer
+                                                <SkeuButton type="submit" variant="primary" className="w-full py-5 text-xl shadow-skeu font-bold" disabled={loading}>
+                                                    {loading ? (
+                                                        <span className="flex items-center justify-center gap-2"><Loader2 size={24} className="animate-spin" /> Registering...</span>
+                                                    ) : (
+                                                        "Become a Volunteer"
+                                                    )}
                                                 </SkeuButton>
                                             </div>
                                         </form>
